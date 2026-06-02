@@ -5,11 +5,25 @@ import { executeOnDb, type QueryResult } from "@/lib/sql-executor";
 
 let sqlPromise: Promise<SqlJsStatic> | null = null;
 
+async function fetchWasmBinary(): Promise<ArrayBuffer> {
+  const res = await fetch("/sql-wasm.wasm");
+  if (!res.ok) throw new Error(`Failed to load wasm: ${res.status}`);
+  return res.arrayBuffer();
+}
+
 function getSql(): Promise<SqlJsStatic> {
   if (!sqlPromise) {
-    sqlPromise = initSqlJs({
-      locateFile: (file: string) => `https://sql.js.org/dist/${file}`,
-    });
+    sqlPromise = (async () => {
+      try {
+        const wasmBinary = await fetchWasmBinary();
+        return await initSqlJs({ wasmBinary });
+      } catch (err) {
+        console.warn("Local wasm failed, falling back to CDN", err);
+        return initSqlJs({
+          locateFile: (file: string) => `https://sql.js.org/dist/${file}`,
+        });
+      }
+    })();
   }
   return sqlPromise;
 }

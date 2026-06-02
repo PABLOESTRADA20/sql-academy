@@ -17,11 +17,11 @@ const iconMap: Record<string, React.ReactNode> = {
 
 export function BenefitsSection() {
   return (
-    <section className="relative px-6 py-20 sm:py-28">
+    <section className="relative px-6 py-20 sm:py-28" aria-labelledby="benefits-title">
       <div className="absolute inset-0 -z-10 bg-grid opacity-[0.02]" />
       <div className="mx-auto max-w-7xl">
         <div className="text-center mb-14">
-          <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
+          <h2 id="benefits-title" className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
             ¿Por qué aprender con nosotros?
           </h2>
           <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">

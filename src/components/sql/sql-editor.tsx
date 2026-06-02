@@ -44,7 +44,7 @@ export function SqlEditor({
     <div className="overflow-hidden rounded-xl border border-border/50">
       <div className="flex items-center justify-between border-b border-border/50 bg-muted/30 px-4 py-2.5">
         <div className="flex items-center gap-2">
-          <div className="flex gap-1.5">
+          <div className="flex gap-1.5" aria-hidden="true">
             <span className="h-2.5 w-2.5 rounded-full bg-red-500/80" />
             <span className="h-2.5 w-2.5 rounded-full bg-yellow-500/80" />
             <span className="h-2.5 w-2.5 rounded-full bg-green-500/80" />
@@ -52,11 +52,11 @@ export function SqlEditor({
           <span className="text-sm font-medium ml-2">Editor SQL</span>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={handleReset}>
+          <Button variant="ghost" size="sm" onClick={handleReset} aria-label="Restablecer consulta">
             <RotateCcw className="h-3.5 w-3.5 mr-1" />
             Reset
           </Button>
-          <Button size="sm" onClick={handleExecute} disabled={executing}>
+          <Button size="sm" onClick={handleExecute} disabled={executing || !query.trim()} aria-label="Ejecutar consulta SQL">
             {executing ? (
               <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
             ) : (
@@ -78,33 +78,35 @@ export function SqlEditor({
           <textarea
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full min-h-[220px] bg-[#0B1121] text-gray-100 font-mono text-sm p-4 focus:outline-none resize-y leading-relaxed"
+            className="w-full min-h-[220px] bg-[#0B1121] text-gray-100 font-mono text-sm p-4 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-primary/30 resize-y leading-relaxed"
             spellCheck={false}
+            aria-label="Editor de consultas SQL"
           />
         </TabsContent>
 
         <TabsContent value="result" className="m-0">
-          <div className="p-4">
+          <div className="p-4" role="region" aria-label="Resultado de la consulta">
             {!result && !executing && (
               <p className="text-sm text-muted-foreground text-center py-8">
                 Ejecuta una consulta para ver los resultados
               </p>
             )}
             {executing && (
-              <div className="flex items-center justify-center py-8">
+              <div className="flex items-center justify-center py-8" role="status">
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                <span className="sr-only">Ejecutando consulta...</span>
               </div>
             )}
             {result?.error && (
-              <div className="flex items-start gap-2 rounded-lg bg-red-500/10 p-3 text-sm text-red-500">
-                <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+              <div className="flex items-start gap-2 rounded-lg bg-red-500/10 p-3 text-sm text-red-500" role="alert">
+                <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" aria-hidden="true" />
                 <span>{result.error}</span>
               </div>
             )}
             {result && !result.error && (
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <CheckCircle2 className="h-4 w-4 text-green-500" aria-hidden="true" />
                   <span className="text-sm text-green-500">
                     {result.rowCount} fila(s) devueltas
                   </span>

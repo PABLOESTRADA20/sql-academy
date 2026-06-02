@@ -4,12 +4,26 @@ import initSqlJs, { type Database as SqlDatabase, type SqlJsStatic } from "sql.j
 
 let sqlPromise: Promise<SqlJsStatic> | null = null;
 
+async function fetchWasmBinary(): Promise<ArrayBuffer> {
+  const res = await fetch("/sql-wasm.wasm");
+  if (!res.ok) throw new Error(`Failed to load wasm: ${res.status}`);
+  return res.arrayBuffer();
+}
+
 function getSql(): Promise<SqlJsStatic> {
   if (!sqlPromise) {
-    sqlPromise = initSqlJs({
-      locateFile: (file: string) =>
-        `https://sql.js.org/dist/${file}`,
-    });
+    sqlPromise = (async () => {
+      try {
+        const wasmBinary = await fetchWasmBinary();
+        return await initSqlJs({ wasmBinary });
+      } catch (err) {
+        console.warn("Local wasm failed, falling back to CDN", err);
+        return initSqlJs({
+          locateFile: (file: string) =>
+            `https://sql.js.org/dist/${file}`,
+        });
+      }
+    })();
   }
   return sqlPromise;
 }
@@ -30,7 +44,9 @@ function queryToResult(db: SqlDatabase, sql: string): QueryResult {
   const isSelect =
     /^\s*SELECT/i.test(trimmed) ||
     /^\s*PRAGMA/i.test(trimmed) ||
-    /^\s*SHOW/i.test(trimmed);
+    /^\s*SHOW/i.test(trimmed) ||
+    /^\s*WITH/i.test(trimmed) ||
+    /^\s*EXPLAIN/i.test(trimmed);
 
   try {
     if (isSelect) {
@@ -65,7 +81,7 @@ function queryToResult(db: SqlDatabase, sql: string): QueryResult {
 
 function populateSimulatorData(db: SqlDatabase): void {
   db.run(
-    "CREATE TABLE IF NOT EXISTS usuarios (id INT, nombre TEXT, email TEXT, edad INT, ciudad TEXT)"
+    "CREATE TABLE IF NOT EXISTS usuarios (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT, email TEXT, edad INTEGER, ciudad TEXT)"
   );
   db.run(
     "INSERT INTO usuarios VALUES (1, 'Ana García', 'ana@email.com', 28, 'Madrid')"
@@ -84,7 +100,7 @@ function populateSimulatorData(db: SqlDatabase): void {
   );
 
   db.run(
-    "CREATE TABLE IF NOT EXISTS productos (id INT, nombre TEXT, precio REAL, stock INT, categoria TEXT)"
+    "CREATE TABLE IF NOT EXISTS productos (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT, precio REAL, stock INTEGER, categoria TEXT)"
   );
   db.run("INSERT INTO productos VALUES (1, 'Laptop Pro', 2999.99, 10, 'Electrónicos')");
   db.run("INSERT INTO productos VALUES (2, 'Monitor 4K', 899.99, 25, 'Electrónicos')");
@@ -93,13 +109,26 @@ function populateSimulatorData(db: SqlDatabase): void {
   db.run("INSERT INTO productos VALUES (5, 'Webcam HD', 129.99, 30, 'Electrónicos')");
 
   db.run(
-    "CREATE TABLE IF NOT EXISTS pedidos (id INT, usuario_id INT, producto_id INT, cantidad INT, total REAL, fecha TEXT)"
+    "CREATE TABLE IF NOT EXISTS pedidos (id INTEGER PRIMARY KEY AUTOINCREMENT, usuario_id INTEGER, producto_id INTEGER, cantidad INTEGER, total REAL, fecha TEXT)"
   );
   db.run("INSERT INTO pedidos VALUES (1, 1, 1, 1, 2999.99, '2024-01-15')");
   db.run("INSERT INTO pedidos VALUES (2, 1, 3, 1, 149.99, '2024-01-15')");
   db.run("INSERT INTO pedidos VALUES (3, 2, 2, 2, 1799.98, '2024-01-14')");
   db.run("INSERT INTO pedidos VALUES (4, 3, 4, 3, 239.97, '2024-01-13')");
   db.run("INSERT INTO pedidos VALUES (5, 4, 5, 1, 129.99, '2024-01-12')");
+  db.run("INSERT INTO pedidos VALUES (6, 1, 2, 1, 899.99, '2024-02-01')");
+  db.run("INSERT INTO pedidos VALUES (7, 2, 1, 1, 2999.99, '2024-02-03')");
+  db.run("INSERT INTO pedidos VALUES (8, 5, 4, 2, 159.98, '2024-02-10')");
+
+  db.run(
+    "CREATE TABLE IF NOT EXISTS empleados (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT, puesto TEXT, salario REAL, depto TEXT, jefe_id INTEGER)"
+  );
+  db.run("INSERT INTO empleados VALUES (1, 'Ricardo Gómez', 'CEO', 150000, 'Dirección', NULL)");
+  db.run("INSERT INTO empleados VALUES (2, 'Sofía Herrera', 'CTO', 120000, 'Tecnología', 1)");
+  db.run("INSERT INTO empleados VALUES (3, 'Luis Fernández', 'Desarrollador', 80000, 'Tecnología', 2)");
+  db.run("INSERT INTO empleados VALUES (4, 'Elena Ruiz', 'Diseñadora', 70000, 'Tecnología', 2)");
+  db.run("INSERT INTO empleados VALUES (5, 'Mario Díaz', 'Ventas', 60000, 'Comercial', 1)");
+  db.run("INSERT INTO empleados VALUES (6, 'Carla Torres', 'Marketing', 55000, 'Comercial', 5)");
 }
 
 export async function createSimulatorDatabase(): Promise<SqlDatabase> {

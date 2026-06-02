@@ -3,10 +3,15 @@ import type { MetadataRoute } from "next";
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://sql-academy.com";
 
-  const routes = [
-    "",
-    "/introduction",
-    "/installation",
+  const mainRoutes = [
+    { url: "", priority: 1, changeFrequency: "weekly" as const },
+    { url: "/introduction", priority: 0.9, changeFrequency: "monthly" as const },
+    { url: "/installation", priority: 0.8, changeFrequency: "monthly" as const },
+    { url: "/simulator", priority: 0.8, changeFrequency: "weekly" as const },
+    { url: "/exercises", priority: 0.8, changeFrequency: "weekly" as const },
+  ];
+
+  const docRoutes = [
     "/installation/windows",
     "/installation/linux",
     "/installation/macos",
@@ -44,14 +49,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/postgresql/uuid",
     "/postgresql/arrays",
     "/postgresql/replicacion",
-    "/simulator",
-    "/exercises",
   ];
 
-  return routes.map((route) => ({
-    url: `${baseUrl}${route}`,
-    lastModified: new Date(),
-    changeFrequency: route === "" ? "weekly" : "monthly",
-    priority: route === "" ? 1 : 0.8,
-  }));
+  const sitemapEntries: MetadataRoute.Sitemap = [
+    ...mainRoutes.map((r) => ({
+      url: `${baseUrl}${r.url}`,
+      lastModified: new Date(),
+      changeFrequency: r.changeFrequency,
+      priority: r.priority,
+    })),
+    ...docRoutes.map((route) => ({
+      url: `${baseUrl}${route}`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
+  ];
+
+  return sitemapEntries;
 }

@@ -6,8 +6,8 @@ import { STATS } from "@/lib/constants";
 
 export function StatsSection() {
   return (
-    <section className="relative border-y border-border/50 px-6 py-16 sm:py-20">
-      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-primary/[0.02] via-transparent to-ring/[0.02]" />
+    <section className="relative border-y border-border/50 px-6 py-16 sm:py-20" aria-label="Estadísticas de la plataforma">
+      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-primary/[0.02] via-transparent to-ring/[0.02] pointer-events-none" />
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
           {STATS.map((stat, index) => (

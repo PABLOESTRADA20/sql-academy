@@ -3,12 +3,16 @@ import { AdminDashboard } from "./client";
 
 export const metadata: Metadata = {
   title: "Admin Dashboard",
-  description: "Panel de administración de SQL Academy.",
+  description: "Panel de administración de SQL Academy. Gestiona cursos, lecciones, usuarios y estadísticas.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function AdminPage() {
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto w-full px-6 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Panel de Administración</h1>
         <p className="mt-2 text-muted-foreground">

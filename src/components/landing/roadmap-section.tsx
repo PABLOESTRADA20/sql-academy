@@ -66,11 +66,11 @@ const roadmap = [
 
 export function RoadmapSection() {
   return (
-    <section className="px-6 py-20 sm:py-28" id="roadmap">
+    <section className="px-6 py-20 sm:py-28" id="roadmap" aria-labelledby="roadmap-title">
       <div className="mx-auto max-w-7xl">
         <div className="text-center mb-14">
           <Badge variant="secondary" className="mb-4">Roadmap</Badge>
-          <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
+          <h2 id="roadmap-title" className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
             Tu ruta de aprendizaje
           </h2>
           <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -79,7 +79,7 @@ export function RoadmapSection() {
         </div>
 
         <div className="relative">
-          <div className="absolute left-8 top-0 h-full w-px bg-gradient-to-b from-primary/20 via-ring/20 to-transparent hidden sm:block" />
+          <div className="absolute left-8 top-0 h-full w-px bg-gradient-to-b from-primary/20 via-ring/20 to-transparent hidden sm:block" aria-hidden="true" />
           <div className="space-y-6">
             {roadmap.map((item, index) => (
               <motion.div
@@ -89,18 +89,18 @@ export function RoadmapSection() {
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
               >
-                <Link href={item.href} className="group block">
+                <Link href={item.href} className="group block focus-ring rounded-xl">
                   <Card className={`relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5 bg-gradient-to-r ${item.gradient}`}>
                     <CardContent className="flex items-start gap-5 p-5 sm:p-6">
                       <div className="relative z-10 flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-xl bg-background border border-border/50 shadow-sm">
-                        <item.icon className={`h-5 w-5 sm:h-5.5 w-5.5 ${item.iconBg}`} />
+                        <item.icon className={`h-5 w-5 sm:h-5.5 w-5.5 ${item.iconBg}`} aria-hidden="true" />
                       </div>
                       <div className="flex-1 min-w-0 relative z-10">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                             Paso {item.step}
                           </span>
-                          <ArrowRight className="h-3 w-3 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1" />
+                          <ArrowRight className="h-3 w-3 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
                         </div>
                         <h3 className="font-semibold text-lg">{item.title}</h3>
                         <p className="text-sm text-muted-foreground mt-0.5">
