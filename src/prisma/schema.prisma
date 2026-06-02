@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  name      String?
+  password  String?
+  image     String?
+  role      Role       @default(STUDENT)
+  progress  Progress[]
+  favorites Favorite[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("users")
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String
+  category    Category @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  lessons     Lesson[]
+  order       Int      @default(0)
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("courses")
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  courses     Course[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("categories")
+}
+
+model Lesson {
+  id          String     @id @default(cuid())
+  title       String
+  slug        String
+  description String
+  content     String
+  syntax      String?
+  course      Course     @relation(fields: [courseId], references: [id])
+  courseId    String
+  order       Int        @default(0)
+  published   Boolean    @default(false)
+  progress    Progress[]
+  favorites   Favorite[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@unique([slug, courseId])
+  @@map("lessons")
+}
+
+model Exercise {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  difficulty  Difficulty
+  instructions String
+  hint        String?
+  solution    String
+  explanation String
+  tableSchema String?
+  initialData String?
+  order       Int      @default(0)
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("exercises")
+}
+
+enum Difficulty {
+  beginner
+  intermediate
+  advanced
+}
+
+model Progress {
+  id        String   @id @default(cuid())
+  userId    String
+  lessonId  String
+  completed Boolean  @default(false)
+  score     Int?
+  user      User     @relation(fields: [userId], references: [id])
+  lesson    Lesson   @relation(fields: [lessonId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, lessonId])
+  @@map("progress")
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  lessonId  String
+  user      User     @relation(fields: [userId], references: [id])
+  lesson    Lesson   @relation(fields: [lessonId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, lessonId])
+  @@map("favorites")
+}
